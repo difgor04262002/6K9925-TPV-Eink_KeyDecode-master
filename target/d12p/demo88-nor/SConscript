@@ -1,0 +1,18 @@
+Import('RTT_ROOT')
+Import('rtconfig')
+from building import *
+import os
+
+cwd     = GetCurrentDir()
+
+# add the board drivers.
+src     = Glob("*.c") + Glob("*.cpp") + Glob("*.S")
+# mmosie.c uses INIT_DEVICE_EXPORT / rt_kprintf; skip it in baremetal bootloader.
+if not GetDepend('KERNEL_RTTHREAD'):
+    src = [s for s in src if os.path.basename(str(s)) != 'mmosie.c']
+
+LOCAL_CPPPATH = [cwd]
+CPPPATH = [cwd + '/include']
+group   = DefineGroup('Board', src, depend = [''], LOCAL_CPPPATH = LOCAL_CPPPATH, CPPPATH = CPPPATH)
+
+Return('group')

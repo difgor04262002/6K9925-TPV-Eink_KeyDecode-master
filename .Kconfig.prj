@@ -1,0 +1,5 @@
+source "bsp/artinchip/sys/d12p/Kconfig.chip"
+source "target/d12p/common/Kconfig.board"
+source "kernel/rt-thread/Kconfig"
+source "application/rt-thread/helloworld/Kconfig"
+source "tools/env/packages/packages/Kconfig"
