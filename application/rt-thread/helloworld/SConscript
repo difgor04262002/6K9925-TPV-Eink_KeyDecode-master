@@ -8,10 +8,6 @@ src     = Glob('*.c')
 CPPPATH = [cwd, ]
 
 CFLAGS = ' -c -ffunction-sections'
-if GetDepend('AIC_EPD_P118F04'):
-    tjpgd_dir = os.path.join(cwd, '../../../packages/artinchip/lvgl-ui/lvgl_v9/lvgl/src/libs/tjpgd')
-    miniz_dir = os.path.join(cwd, '../../../packages/third-party/miniz')
-    CPPPATH = CPPPATH + [tjpgd_dir, miniz_dir]
 
 group   = DefineGroup('Applications', src, depend = [''], CPPPATH = CPPPATH, CFLAGS=CFLAGS)
 
