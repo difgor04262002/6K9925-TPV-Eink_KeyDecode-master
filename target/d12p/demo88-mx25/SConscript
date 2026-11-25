@@ -1,0 +1,18 @@
+Import('RTT_ROOT')
+Import('rtconfig')
+from building import *
+import os
+
+cwd = GetCurrentDir()
+base = os.path.join(cwd, '..', 'demo88-nor')
+
+# Same pins and board code as the TPV glass. Only the flash pack differs.
+src = Glob(os.path.join(base, '*.c')) + Glob(os.path.join(base, '*.cpp')) + Glob(os.path.join(base, '*.S'))
+if not GetDepend('KERNEL_RTTHREAD'):
+    src = [s for s in src if os.path.basename(str(s)) != 'mmosie.c']
+
+LOCAL_CPPPATH = [base]
+CPPPATH = [os.path.join(base, 'include')]
+group = DefineGroup('Board', src, depend = [''], LOCAL_CPPPATH = LOCAL_CPPPATH, CPPPATH = CPPPATH)
+
+Return('group')

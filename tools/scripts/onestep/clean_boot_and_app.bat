@@ -27,6 +27,7 @@ for /f "tokens=4* delims=_" %%a in ("%defconfig%") do (
 
 set app_defconfig=!defconfig!_defconfig
 set boot_defconfig=!chip!_!board!_baremetal_bootloader_defconfig
+if "!defconfig!"=="6K9925_TPV_Eink_KeyDecode_NOR" set boot_defconfig=d12p_demo88-mx25_baremetal_bootloader_defconfig
 
 :: (1) Clean bootloader
 call scons --apply-def=%boot_defconfig% -C %SDK_PRJ_TOP_DIR%

@@ -190,6 +190,9 @@ if AIC_USING_FS_IMAGE_TYPE_FATFS_FOR_0 || AIC_USING_FS_IMAGE_TYPE_FATFS_FOR_1 ||
     config AIC_USING_DIRENT_CACHE_FOR_READ_ONLY_FATFS
         bool "enable directory entry cache for read only fatfs"
         default y
+    config AIC_FATFS_ENABLE_WRITE_IN_SPINOR
+        bool "enable FATFS write on SPI NOR"
+        default n
 endif
 
 config GENERATE_BURNER_IMAGE

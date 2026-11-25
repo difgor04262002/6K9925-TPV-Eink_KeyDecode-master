@@ -1646,6 +1646,8 @@ def mkimage_prebuild(aic_root, prj_chip, prj_board, prj_kernel, prj_app, prj_def
         MAKE_IMG_ACTION = MAKE_IMG_TOOL + MAKE_IMG_ARGS + IMG_JSON + ' -d ' + prj_out_dir
         if prj_defconfig == '6K9925_TPV_Eink_KeyDecode_NAND_defconfig':
             MAKE_IMG_ACTION += ' --imgname 6K9925_TPV_Eink_W25N04KV_v1.0.0.img'
+        if prj_defconfig == '6K9925_TPV_Eink_KeyDecode_NOR_defconfig':
+            MAKE_IMG_ACTION += ' --imgname 6K9925_TPV_Eink_MX25L51245G_v1.0.0.img'
         MAKE_IMG_ACTION += '\n'
         POST_ACTION += MAKE_IMG_ACTION
 

@@ -3,12 +3,12 @@
 
 /* Project options */
 
-#define PRJ_DEFCONFIG_FILENAME "6K9925_TPV_Eink_KeyDecode_NAND_defconfig"
+#define PRJ_DEFCONFIG_FILENAME "6K9925_TPV_Eink_KeyDecode_NOR_defconfig"
 
 /* -- Important: If following options have been changed, you need save & rerun menuconfig before changing any other options. */
 
 #define PRJ_CHIP "d12p"
-#define PRJ_BOARD "demo88-nor"
+#define PRJ_BOARD "demo88-mx25"
 #define PRJ_KERNEL "rt-thread"
 #define PRJ_APP "helloworld"
 #define PRJ_RV_TOOLCHAIN_V2_6_1
@@ -29,12 +29,13 @@
 #define AIC_FATFS_DEFAULT_VOLAB_0
 #define AIC_USING_FS_IMAGE_1
 #define AIC_USING_FS_IMAGE_TYPE_FATFS_FOR_1
-#define AIC_FS_IMAGE_DIR_1 "target/d12p/demo88-nor/pack/data"
+#define AIC_FS_IMAGE_DIR_1 "target/d12p/demo88-mx25/pack/data"
 #define AIC_FS_IMAGE_NAME_1 "data.fatfs"
 #define AIC_FATFS_AUTO_SIZE_FOR_1
 #define AIC_FATFS_DEFAULT_VOLAB_1
 #define AIC_USING_FS_IMAGE_TYPE_FATFS_CLUSTER_SIZE 8
 #define AIC_USING_DIRENT_CACHE_FOR_READ_ONLY_FATFS
+#define AIC_FATFS_ENABLE_WRITE_IN_SPINOR
 
 /* LVGL demo select related */
 
@@ -231,11 +232,8 @@
 #define AIC_QSPI3_DYNAMIC_DMA
 #define AIC_QSPI3_BUS_SPI
 /* end of SPI3 Parameter */
-#define AIC_QSPI0_DEVICE_SPINAND
-#define AIC_QSPI0_DEVICE_SPINAND_FREQ 50000000
-#define AIC_SPINAND_BLOCK_CACHE
-#define AIC_SPINAND_BLOCK_CACHE_SIZE 512
-#define AIC_SPINAND_BLOCK_CACHE_NUM 4
+#define AIC_QSPI0_DEVICE_SPINOR
+#define AIC_QSPI0_DEVICE_SPINOR_FREQ 100000000
 
 /* WLAN Related: */
 
@@ -456,6 +454,11 @@
 #define RT_DFS_ELM_MUTEX_TIMEOUT 3000
 /* end of elm-chan's FatFs, Generic FAT Filesystem Module */
 #define RT_USING_DFS_ROMFS
+#define RT_USING_FAL
+#define FAL_DEBUG 0
+#define FAL_PART_HAS_TABLE_CFG
+#define FAL_USING_SFUD_PORT
+#define FAL_USING_NOR_FLASH_DEV_NAME "norflash0"
 
 /* Device Drivers */
 
@@ -468,7 +471,7 @@
 #define RT_USING_I2C_BITOPS
 #define RT_USING_PIN
 #define RT_USING_ADC
-#define RT_USING_MTD_NAND
+#define RT_USING_MTD_NOR
 #define RT_USING_RTC
 #define RT_USING_ALARM
 #define RT_USING_SDIO
@@ -479,6 +482,11 @@
 #define RT_MMCSD_MAX_PARTITION 16
 #define RT_USING_SPI
 #define RT_USING_QSPI
+#define RT_USING_SFUD
+#define RT_SFUD_USING_SFDP
+#define RT_SFUD_USING_FLASH_INFO_TABLE
+#define RT_SFUD_USING_QSPI
+#define RT_SFUD_SPI_MAX_HZ 50000000
 #define RT_USING_WDT
 #define RT_USING_AUDIO
 #define RT_AUDIO_REPLAY_MP_BLOCK_SIZE 2048
@@ -758,17 +766,11 @@
 /* Drivers options */
 
 #define AIC_GPIO_IRQ_DRV_EN
-#define AIC_SPINAND_DRV
+#define AIC_SPINOR_DRV
 
 /* Peripheral */
 
-#define LPKG_USING_SPINAND
-#define SPI_NAND_WINBOND
-#define AIC_NFTL_SUPPORT
-#define AIC_NFLT_USED_LIB
-#define AIC_NFTL_DISABLE_OOB_VERIFY
-#define AIC_NFTL_OOB_VERIFY 0
-#define AIC_NFTL_MINI_RESERVED_BLOCK 50
+#define LPKG_USING_SFUD
 #define AIC_USING_TOUCH
 #define AIC_USING_CTP
 #define AIC_TOUCH_PANEL_GT911

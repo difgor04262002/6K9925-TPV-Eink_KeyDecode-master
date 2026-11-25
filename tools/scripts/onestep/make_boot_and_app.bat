@@ -28,6 +28,7 @@ for /f "tokens=4* delims=_" %%a in ("%defconfig%") do (
 
 set app_defconfig=!defconfig!_defconfig
 set boot_defconfig=!chip!_!board!_baremetal_bootloader_defconfig
+if "!defconfig!"=="6K9925_TPV_Eink_KeyDecode_NOR" set boot_defconfig=d12p_demo88-mx25_baremetal_bootloader_defconfig
 
 set LOG_DIR=%SDK_PRJ_TOP_DIR%\.log
 if not exist %LOG_DIR% mkdir %LOG_DIR%

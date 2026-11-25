@@ -127,14 +127,56 @@ static int epd_wait_busy(void)
     return 0;
 }
 
+/* PON/DRF pull BUSY_N low while the rails or the waveform run, then
+ * release it. Already-high is not a finished power-on. */
+static int epd_wait_pulse(const char *name, int arm_ms)
+{
+    int arm;
+    int ms;
+
+    for (arm = 0; arm < arm_ms; arm++) {
+        if (!epd_read(s_busy))
+            break;
+        rt_thread_mdelay(1);
+    }
+    if (arm >= arm_ms) {
+        rt_kprintf("epd: %s busy stayed high\n", name);
+        return -1;
+    }
+    for (ms = arm; ms < EPD_BUSY_MS; ms++) {
+        if (epd_read(s_busy)) {
+            rt_kprintf("epd: %s busy %d ms\n", name, ms);
+            return 0;
+        }
+        rt_thread_mdelay(1);
+    }
+    rt_kprintf("epd: %s BUSY_N stayed low\n", name);
+    return -1;
+}
+
+/* HX5325-A R01h: bit[6:0] 0x00..0x78 is 3.0V..15.0V. 0xFF is not in the table. */
+static int epd_volt_in_range(const uint8_t volt[5], uint8_t vcom)
+{
+    int i;
+
+    if (volt[0] == 0xFF)
+        return 0;
+    for (i = 1; i < 5; i++) {
+        if ((volt[i] & 0x7F) > 0x78)
+            return 0;
+    }
+    return (vcom & 0x7F) <= 0x50;
+}
+
 static void epd_shift_out(uint8_t data)
 {
     int i;
 
+    /* HX5325-A TSDS is 30ns. Data has to be stable before SCL rises. */
     for (i = 0; i < 8; i++) {
         epd_level(s_scl, 0);
-        aic_udelay(1);
         epd_level(s_sda, (data & 0x80) ? 1 : 0);
+        aic_udelay(1);
         epd_level(s_scl, 1);
         aic_udelay(1);
         data <<= 1;
@@ -194,14 +236,64 @@ static uint8_t epd_data_in(void)
     return data;
 }
 
+static uint8_t s_volt[5] = { 0x00, 0x1E, 0x25, 0x28, 0x32 };
+static uint8_t s_vcom = 0x28;
+static uint8_t s_frame = 0x02;
+
+static void epd_bus_claim(void)
+{
+    /* Deep sleep ignores every command until RST_N. Drive the pins
+     * here so that pulse is GPIO, not whatever QSPI1 left on PE. */
+    epd_out(s_cs, 1);
+    epd_out(s_scl, 0);
+    epd_out(s_sda, 1);
+    epd_out(s_dc, 0);
+    epd_out(s_rst, 1);
+    epd_in(s_busy);
+}
+
 static void epd_reset(void)
 {
+    epd_level(s_cs, 1);
+    epd_level(s_dc, 0);
     epd_level(s_rst, 1);
     rt_thread_mdelay(20);
     epd_level(s_rst, 0);
     rt_thread_mdelay(20);
     epd_level(s_rst, 1);
     rt_thread_mdelay(20);
+}
+
+static void epd_write_rails(void)
+{
+    int i;
+
+    epd_cmd(0x00);
+    epd_data(0x17);
+    epd_data(0xE9);
+    epd_cmd(0x01);
+    epd_data(0x0F);
+    for (i = 0; i < 5; i++)
+        epd_data(s_volt[i]);
+    epd_cmd(0x06);
+    epd_data(0x17);
+    epd_data(0x17);
+    epd_data(0x27);
+    epd_cmd(0x30);
+    epd_data(s_frame);
+    epd_cmd(0x82);
+    epd_data(s_vcom);
+}
+
+/* R04h runs only while BUSY_N is high. No parameter in the datasheet. */
+static int epd_pon(void)
+{
+    if (epd_wait_busy())
+        return -1;
+    rt_kprintf("epd: cmd 04\n");
+    epd_cmd(0x04);
+    epd_data(0x00);
+    return epd_wait_pulse("pon", 200);
 }
 
 static int epd_init_otp(void)
@@ -211,6 +303,7 @@ static int epd_init_otp(void)
     uint8_t frame;
     int i;
 
+    epd_bus_claim();
     epd_reset();
     rt_kprintf("epd: busy %d after reset\n", epd_read(s_busy));
     if (epd_wait_busy())
@@ -249,6 +342,25 @@ static int epd_init_otp(void)
 
     rt_kprintf("epd: volt %02X %02X %02X %02X %02X vcom %02X frame %02X\n",
                volt[0], volt[1], volt[2], volt[3], volt[4], vcom, frame);
+    /* P118 init writes these bytes into R01h/R30h/R82h, then the later
+     * 0x04 generates the rails. A failed 0x94 read is 0xFF, and R01h
+     * source code 0x7F is past 15.0V. Keep the OTP this panel returned
+     * when the controller answered: gate ±20V, sources +6.0/-6.7/+7.0/-8.0V,
+     * VCOM -2.00V, 50Hz. */
+    if (!epd_volt_in_range(volt, vcom) || frame == 0xFF) {
+        volt[0] = 0x00;
+        volt[1] = 0x1E;
+        volt[2] = 0x25;
+        volt[3] = 0x28;
+        volt[4] = 0x32;
+        vcom = 0x28;
+        frame = 0x02;
+        rt_kprintf("epd: volt use panel otp\n");
+    }
+    for (i = 0; i < 5; i++)
+        s_volt[i] = volt[i];
+    s_vcom = vcom;
+    s_frame = frame;
 
     epd_cmd(0x66);
     epd_data(0x49);
@@ -335,21 +447,28 @@ static void epd_show_carpet(void)
 
 static int epd_update(void)
 {
-    epd_cmd(0x04);
-    epd_data(0x00);
-    rt_thread_mdelay(200);
-    if (epd_wait_busy())
-        return -1;
+    /* R04h is ignored unless BUSY_N is high. Deep sleep ignores it until
+     * RST_N. If the first one does not run, wake the controller and
+     * write the rails again, then issue 0x04 once more. */
+    if (epd_pon()) {
+        epd_bus_claim();
+        epd_reset();
+        rt_kprintf("epd: busy %d after reset\n", epd_read(s_busy));
+        if (epd_wait_busy())
+            return -1;
+        epd_write_rails();
+        if (epd_pon())
+            return -1;
+    }
 
     epd_cmd(0x12);
     epd_data(0x00);
-    rt_thread_mdelay(1000);
-    if (epd_wait_busy())
+    if (epd_wait_pulse("refresh", 1000))
         return -1;
 
     epd_cmd(0x02);
     epd_data(0x00);
-    if (epd_wait_busy())
+    if (epd_wait_pulse("off", 200))
         return -1;
     return 0;
 }
@@ -368,8 +487,10 @@ void epd_show_packed(const uint8_t *frame)
     if (epd_init_otp())
         return;
     epd_show_frame(frame);
-    if (epd_update())
+    if (epd_update()) {
+        rt_kprintf("epd: booster not started\n");
         return;
+    }
     epd_sleep();
     rt_kprintf("epd: refresh done\n");
 }
@@ -398,12 +519,7 @@ static int epd_pins_init(void)
         }
     }
 
-    epd_out(s_cs, 1);
-    epd_out(s_scl, 0);
-    epd_out(s_sda, 1);
-    epd_out(s_dc, 0);
-    epd_out(s_rst, 1);
-    epd_in(s_busy);
+    epd_bus_claim();
     return 0;
 }
 
