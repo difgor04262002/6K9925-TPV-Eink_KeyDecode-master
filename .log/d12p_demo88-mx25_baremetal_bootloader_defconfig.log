@@ -9,14 +9,13 @@ C:\Users\rody0\OneDrive\6K9925\Proj01_TPV\6K9925-TPV-Eink_KeyDecode-master\kerne
 scons: done reading SConscript files.
 scons: Building targets ...
 scons: building associated VariantDir targets: output\d12p_demo88-mx25_baremetal_bootloader
-  CC application\baremetal\bootloader\main.c
 LINK output\d12p_demo88-mx25_baremetal_bootloader\images\d12p.elf
--rw-r--r-- 1 2206892 Nov 26 11:10 output\d12p_demo88-mx25_baremetal_bootloader\images\d12p.elf
+-rw-r--r-- 1 2206628 Nov 26 11:51 output\d12p_demo88-mx25_baremetal_bootloader\images\d12p.elf
 
 riscv64-unknown-elf-objcopy -O binary output\d12p_demo88-mx25_baremetal_bootloader\images\d12p.elf output/d12p_demo88-mx25_baremetal_bootloader/images/d12p.bin
 riscv64-unknown-elf-size output\d12p_demo88-mx25_baremetal_bootloader\images\d12p.elf
    text	   data	    bss	    dec	    hex	filename
- 208420	   5776	  23712	 237908	  3a154	output\d12p_demo88-mx25_baremetal_bootloader\images\d12p.elf
+ 208428	   5920	  23712	 238060	  3a1ec	output\d12p_demo88-mx25_baremetal_bootloader\images\d12p.elf
 python3 C:\Users\rody0\OneDrive\6K9925\Proj01_TPV\6K9925-TPV-Eink_KeyDecode-master\tools/scripts/linked_size.py -m C:\Users\rody0\OneDrive\6K9925\Proj01_TPV\6K9925-TPV-Eink_KeyDecode-master\output/d12p_demo88-mx25_baremetal_bootloader/images/d12p.map
 
 Luban-Lite is built successfully

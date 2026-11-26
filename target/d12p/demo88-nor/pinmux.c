@@ -251,6 +251,9 @@ struct aic_pinmux aic_pinmux_config[] = {
     {1, PIN_PULL_DOWN, 3, "PE.11"},
 #endif
 #ifdef AIC_EPD_P118F04
+    /* EC21 encoder A/B: external pull-ups, common terminal to ground. */
+    {1, PIN_PULL_DIS, 3, "PD.20"},
+    {1, PIN_PULL_DIS, 3, "PD.21"},
     /* KEY1..KEY5: external 10K pull-downs, pressed = high. */
     {1, PIN_PULL_DIS, 3, "PD.23"},
     {1, PIN_PULL_DIS, 3, "PD.24"},
