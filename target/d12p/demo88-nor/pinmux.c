@@ -250,6 +250,14 @@ struct aic_pinmux aic_pinmux_config[] = {
     /* Last: LCD_RST stays GPIO. Do not leave PE.11 as CLK_OUT. */
     {1, PIN_PULL_DOWN, 3, "PE.11"},
 #endif
+#ifdef AIC_EPD_P118F04
+    /* KEY1..KEY5: external 10K pull-downs, pressed = high. */
+    {1, PIN_PULL_DIS, 3, "PD.23"},
+    {1, PIN_PULL_DIS, 3, "PD.24"},
+    {1, PIN_PULL_DIS, 3, "PD.25"},
+    {1, PIN_PULL_DIS, 3, "PD.26"},
+    {1, PIN_PULL_DIS, 3, "PD.27"},
+#endif
 };
 
 uint32_t aic_pinmux_config_size = ARRAY_SIZE(aic_pinmux_config);

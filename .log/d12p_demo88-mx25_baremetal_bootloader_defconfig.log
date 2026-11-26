@@ -1,0 +1,24 @@
+scons: Reading SConscript files ...
+Load config from target\configs\d12p_demo88-mx25_baremetal_bootloader_defconfig
+Loaded configuration 'C:\Users\rody0\OneDrive\6K9925\Proj01_TPV\6K9925-TPV-Eink_KeyDecode-master\target\configs\d12p_demo88-mx25_baremetal_bootloader_defconfig'
+Configuration saved to '.config'
+
+scons: warning: No version of Visual Studio compiler found - C/C++ compilers most likely not set correctly
+File "C:\Users\rody0\OneDrive\6K9925\Proj01_TPV\6K9925-TPV-Eink_KeyDecode-master\SConstruct", line 20, in <module>
+C:\Users\rody0\OneDrive\6K9925\Proj01_TPV\6K9925-TPV-Eink_KeyDecode-master\kernel\rt-thread
+scons: done reading SConscript files.
+scons: Building targets ...
+scons: building associated VariantDir targets: output\d12p_demo88-mx25_baremetal_bootloader
+  CC application\baremetal\bootloader\main.c
+LINK output\d12p_demo88-mx25_baremetal_bootloader\images\d12p.elf
+-rw-r--r-- 1 2206892 Nov 26 11:10 output\d12p_demo88-mx25_baremetal_bootloader\images\d12p.elf
+
+riscv64-unknown-elf-objcopy -O binary output\d12p_demo88-mx25_baremetal_bootloader\images\d12p.elf output/d12p_demo88-mx25_baremetal_bootloader/images/d12p.bin
+riscv64-unknown-elf-size output\d12p_demo88-mx25_baremetal_bootloader\images\d12p.elf
+   text	   data	    bss	    dec	    hex	filename
+ 208420	   5776	  23712	 237908	  3a154	output\d12p_demo88-mx25_baremetal_bootloader\images\d12p.elf
+python3 C:\Users\rody0\OneDrive\6K9925\Proj01_TPV\6K9925-TPV-Eink_KeyDecode-master\tools/scripts/linked_size.py -m C:\Users\rody0\OneDrive\6K9925\Proj01_TPV\6K9925-TPV-Eink_KeyDecode-master\output/d12p_demo88-mx25_baremetal_bootloader/images/d12p.map
+
+Luban-Lite is built successfully
+
+scons: done building targets.
